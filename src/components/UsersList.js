@@ -12,6 +12,7 @@ export class UsersList extends Component {
   state = {
     users: [],
     loading: false,
+    errMsg: '',
   };
 
   columns = [
@@ -42,7 +43,7 @@ export class UsersList extends Component {
         <div key={record.id}>
           <Link to={`/addUser/${record.id}`}>
             <Button type='link'>Update</Button>
-          </Link>{' '}
+          </Link>
           |
           <Popconfirm
             title='Sure to delete?'
@@ -67,9 +68,18 @@ export class UsersList extends Component {
 
   componentDidMount() {
     this.setState({ loading: true });
-    UserServices.getUsers().then((res) => {
-      this.setState({ users: res.data, loading: false });
-    });
+    UserServices.getUsers()
+      .then((res) => {
+        // console.log(res);
+        // if (!res.ok) {
+        //   throw Error('Could not fetch the data for that resource');
+        // }
+        this.setState({ users: res.data, loading: false });
+      })
+      .catch((err) => {
+        console.log(err.message);
+        this.setState({ errMsg: err.message });
+      });
   }
 
   render() {
@@ -100,16 +110,20 @@ export class UsersList extends Component {
               Add a User
             </Button>
           </Link>
-          <div className='info_card'>
-            <Table
-              loading={this.state.loading}
-              columns={this.columns}
-              dataSource={this.state.users}
-              pagination={{
-                pageSize: 5,
-              }}
-            />
-          </div>
+          {this.state.errMsg ? (
+            <div>{this.state.errMsg}</div>
+          ) : (
+            <div className='info_card'>
+              <Table
+                loading={this.state.loading}
+                columns={this.columns}
+                dataSource={this.state.users}
+                pagination={{
+                  pageSize: 5,
+                }}
+              />
+            </div>
+          )}
         </Content>
       </div>
     );

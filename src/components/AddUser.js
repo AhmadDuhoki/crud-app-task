@@ -12,19 +12,25 @@ export class AddUser extends Component {
     name: '',
     username: '',
     email: '',
+    errMsg: '',
   };
   componentDidMount() {
     if (this.state.id === '_add') {
       return;
     } else {
-      UserServices.getUserById(this.state.id).then((res) => {
-        let user = res.data;
-        this.setState({
-          name: user.name,
-          username: user.username,
-          email: user.email,
+      UserServices.getUserById(this.state.id)
+        .then((res) => {
+          let user = res.data;
+          this.setState({
+            name: user.name,
+            username: user.username,
+            email: user.email,
+          });
+        })
+        .catch((err) => {
+          console.log(err.message);
+          this.setState({ errMsg: err.message });
         });
-      });
     }
   }
 
@@ -44,11 +50,19 @@ export class AddUser extends Component {
         .then((res) => {
           this.props.history.push('/users');
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+          console.log(err.message);
+          this.setState({ errMsg: err.message });
+        });
     } else {
-      UserServices.updateUser(user, this.state.id).then((res) => {
-        this.props.history.push('/users');
-      });
+      UserServices.updateUser(user, this.state.id)
+        .then((res) => {
+          this.props.history.push('/users');
+        })
+        .catch((err) => {
+          console.log(err.message);
+          this.setState({ errMsg: err.message });
+        });
     }
   };
 
@@ -66,60 +80,64 @@ export class AddUser extends Component {
           minHeight: 777,
         }}
       >
-        <div className='center info_card'>
-          <div className='title'>
-            {this.state.id === '_add' ? (
-              <Title style={{ margin: '10px' }} level={2}>
-                Add a New User
-              </Title>
-            ) : (
-              <Title style={{ margin: '10px' }} level={2}>
-                Update User
-              </Title>
-            )}
-          </div>
-          <form onSubmit={this.handleSave}>
-            <div className='text_field'>
-              <input
-                required
-                placeholder='Name'
-                name='name'
-                value={this.state.name}
-                onChange={this.handleChnage}
-              />
+        {this.state.errMsg ? (
+          <div>{this.state.errMsg}</div>
+        ) : (
+          <div className='center info_card'>
+            <div className='title'>
+              {this.state.id === '_add' ? (
+                <Title style={{ margin: '10px' }} level={2}>
+                  Add a New User
+                </Title>
+              ) : (
+                <Title style={{ margin: '10px' }} level={2}>
+                  Update User
+                </Title>
+              )}
             </div>
-            <div className='text_field'>
-              <input
-                required
-                placeholder='Username'
-                name='username'
-                value={this.state.username}
-                onChange={this.handleChnage}
-              />
-            </div>
-            <div className='text_field'>
-              <input
-                type='email'
-                required
-                placeholder='Email'
-                name='email'
-                value={this.state.email}
-                onChange={this.handleChnage}
-              />
-            </div>
+            <form onSubmit={this.handleSave}>
+              <div className='text_field'>
+                <input
+                  required
+                  placeholder='Name'
+                  name='name'
+                  value={this.state.name}
+                  onChange={this.handleChnage}
+                />
+              </div>
+              <div className='text_field'>
+                <input
+                  required
+                  placeholder='Username'
+                  name='username'
+                  value={this.state.username}
+                  onChange={this.handleChnage}
+                />
+              </div>
+              <div className='text_field'>
+                <input
+                  type='email'
+                  required
+                  placeholder='Email'
+                  name='email'
+                  value={this.state.email}
+                  onChange={this.handleChnage}
+                />
+              </div>
 
-            <Button type='primary' htmlType='submit'>
-              Save
-            </Button>
-            <Button
-              style={{ marginLeft: '10px', marginTop: '20px' }}
-              onClick={this.cancel}
-              type='default'
-            >
-              Cancel
-            </Button>
-          </form>
-        </div>
+              <Button type='primary' htmlType='submit'>
+                Save
+              </Button>
+              <Button
+                style={{ marginLeft: '10px', marginTop: '20px' }}
+                onClick={this.cancel}
+                type='default'
+              >
+                Cancel
+              </Button>
+            </form>
+          </div>
+        )}
         {/* {this.state && (
           <Form
             initialValues={{
